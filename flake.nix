@@ -10,6 +10,11 @@
           description = "A Rust app.";
         };
 
+        cpp = {
+          path = ./templates/cpp;
+          description = "A C++ app.";
+        };
+
         typst = {
           path = ./templates/typst;
           description = "Typst environment.";
