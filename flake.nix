@@ -20,6 +20,11 @@
           description = "Typst environment.";
         };
 
+        typst-slides = {
+          path = ./templates/typst-slides;
+          description = "Typst slides environment.";
+        };
+
         machine-learning = {
           path = ./templates/machine-learning;
           description = "A CUDA-enabled ML dev shell with uv.";
