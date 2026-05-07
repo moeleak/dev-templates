@@ -1,7 +1,7 @@
-#import "@preview/touying:0.6.1": *
+#import "@preview/touying:0.7.2": *
 #import themes.university: *
-#import "@preview/cetz:0.3.2"
-#import "@preview/fletcher:0.5.7" as fletcher: node, edge
+#import "@preview/cetz:0.5.0"
+#import "@preview/fletcher:0.5.8" as fletcher: node, edge
 #import "@preview/numbly:0.1.0": numbly
 #import "@preview/theorion:0.3.3": *
 #import cosmos.clouds: *

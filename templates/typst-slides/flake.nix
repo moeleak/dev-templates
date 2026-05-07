@@ -2,7 +2,7 @@
   description = "Typst environment.";
 
   inputs = {
-    nixpkgs.url = "github:cherrypiejam/nixpkgs?ref=typst";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     self.submodules = true;
   };
@@ -28,6 +28,8 @@
             numbly
             theorion
             fletcher
+            oxifmt_0_2_1
+            theorion_0_3_3
           ]
         );
 
@@ -38,6 +40,7 @@
 
         fonts = with pkgs; [
           noto-fonts
+          noto-fonts-color-emoji
           noto-fonts-cjk-sans
           noto-fonts-cjk-serif
           source-han-sans

@@ -2,7 +2,7 @@
   description = "Typst environment.";
 
   inputs = {
-    nixpkgs.url = "github:cherrypiejam/nixpkgs?ref=typst";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
     self.submodules = true;
   };
