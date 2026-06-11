@@ -32,7 +32,7 @@
 
         machine-learning-uv2nix = {
           path = ./templates/machine-learning-uv2nix;
-          description = "A CUDA/MPS-enabled PyTorch dev shell with uv2nix.";
+          description = "A CUDA/MPS-enabled ML dev shell with uv2nix.";
         };
 
       };
