@@ -116,33 +116,73 @@
               ${name} = addBuildInputs previous.${name} inputs;
             };
 
+          patchSearchPathsIfPresent =
+            previous: name: paths:
+            lib.optionalAttrs (lib.hasAttr name previous) {
+              ${name} = addSearchPaths previous.${name} paths;
+            };
+
           cudaOverlay =
             final: previous:
             let
-              nvidiaLibPath =
-                name: component:
-                lib.optional (lib.hasAttr name previous) "${final.${name}}/${python.sitePackages}/nvidia/${component}/lib";
+              cudaPackageNames =
+                base: [
+                  base
+                  "${base}-cu12"
+                  "${base}-cu13"
+                ];
 
-              cublasPaths = nvidiaLibPath "nvidia-cublas" "cu13";
-              cusparsePaths = nvidiaLibPath "nvidia-cusparse" "cu13";
-              nvjitlinkPaths = nvidiaLibPath "nvidia-nvjitlink" "cu13";
+              nvidiaPackagePaths =
+                names:
+                lib.concatMap (
+                  name:
+                  lib.optional (lib.hasAttr name previous) "${final.${name}}/${python.sitePackages}"
+                ) names;
+
+              patchBuildInputs =
+                names: inputs:
+                lib.foldl' (attrs: name: attrs // patchIfPresent previous name inputs) { } names;
+
+              patchSearchPaths =
+                names: paths:
+                lib.foldl' (attrs: name: attrs // patchSearchPathsIfPresent previous name paths) { } names;
+
+              cublasNames = cudaPackageNames "nvidia-cublas";
+              cudaCuptiNames = cudaPackageNames "nvidia-cuda-cupti";
+              cudaNvrtcNames = cudaPackageNames "nvidia-cuda-nvrtc";
+              cudaRuntimeNames = cudaPackageNames "nvidia-cuda-runtime";
+              cudnnNames = cudaPackageNames "nvidia-cudnn";
+              cufftNames = cudaPackageNames "nvidia-cufft";
+              cufileNames = cudaPackageNames "nvidia-cufile";
+              curandNames = cudaPackageNames "nvidia-curand";
+              cusolverNames = cudaPackageNames "nvidia-cusolver";
+              cusparseNames = cudaPackageNames "nvidia-cusparse";
+              cusparseltNames = cudaPackageNames "nvidia-cusparselt";
+              ncclNames = cudaPackageNames "nvidia-nccl";
+              nvjitlinkNames = cudaPackageNames "nvidia-nvjitlink";
+              nvshmemNames = cudaPackageNames "nvidia-nvshmem";
+              nvtxNames = cudaPackageNames "nvidia-nvtx";
+
+              cublasPaths = nvidiaPackagePaths cublasNames;
+              cusparsePaths = nvidiaPackagePaths cusparseNames;
+              nvjitlinkPaths = nvidiaPackagePaths nvjitlinkNames;
 
               wheelLibraryPaths =
                 cublasPaths
                 ++ cusparsePaths
                 ++ nvjitlinkPaths
-                ++ nvidiaLibPath "nvidia-cuda-cupti" "cu13"
-                ++ nvidiaLibPath "nvidia-cuda-nvrtc" "cu13"
-                ++ nvidiaLibPath "nvidia-cuda-runtime" "cu13"
-                ++ nvidiaLibPath "nvidia-cudnn-cu13" "cudnn"
-                ++ nvidiaLibPath "nvidia-cufft" "cu13"
-                ++ nvidiaLibPath "nvidia-cufile" "cu13"
-                ++ nvidiaLibPath "nvidia-curand" "cu13"
-                ++ nvidiaLibPath "nvidia-cusolver" "cu13"
-                ++ nvidiaLibPath "nvidia-cusparselt-cu13" "cusparselt"
-                ++ nvidiaLibPath "nvidia-nccl-cu13" "nccl"
-                ++ nvidiaLibPath "nvidia-nvshmem-cu13" "nvshmem"
-                ++ nvidiaLibPath "nvidia-nvtx" "cu13";
+                ++ nvidiaPackagePaths cudaCuptiNames
+                ++ nvidiaPackagePaths cudaNvrtcNames
+                ++ nvidiaPackagePaths cudaRuntimeNames
+                ++ nvidiaPackagePaths cudnnNames
+                ++ nvidiaPackagePaths cufftNames
+                ++ nvidiaPackagePaths cufileNames
+                ++ nvidiaPackagePaths curandNames
+                ++ nvidiaPackagePaths cusolverNames
+                ++ nvidiaPackagePaths cusparseltNames
+                ++ nvidiaPackagePaths ncclNames
+                ++ nvidiaPackagePaths nvshmemNames
+                ++ nvidiaPackagePaths nvtxNames;
             in
             lib.optionalAttrs (lib.hasAttr "torch" previous) {
               torch = (addSearchPaths previous.torch wheelLibraryPaths).overrideAttrs (old: {
@@ -151,24 +191,16 @@
                 ];
               });
             }
-            // patchIfPresent previous "nvidia-cufile" [
+            // patchBuildInputs cufileNames [
               pkgs.rdma-core
             ]
-            // patchIfPresent previous "nvidia-nvshmem-cu13" fabricInputs
-            // lib.optionalAttrs (lib.hasAttr "nvidia-cufft" previous) {
-              nvidia-cufft = addSearchPaths previous.nvidia-cufft nvjitlinkPaths;
-            }
-            // lib.optionalAttrs (lib.hasAttr "nvidia-cusparse" previous) {
-              nvidia-cusparse = addSearchPaths previous.nvidia-cusparse nvjitlinkPaths;
-            }
-            // lib.optionalAttrs (lib.hasAttr "nvidia-cusolver" previous) {
-              nvidia-cusolver = addSearchPaths previous.nvidia-cusolver (
-                cublasPaths ++ cusparsePaths ++ nvjitlinkPaths
-              );
-            }
-            // lib.optionalAttrs (lib.hasAttr "nvidia-cudnn-cu13" previous) {
-              nvidia-cudnn-cu13 = addSearchPaths previous.nvidia-cudnn-cu13 cublasPaths;
-            };
+            // patchBuildInputs nvshmemNames fabricInputs
+            // patchSearchPaths cufftNames nvjitlinkPaths
+            // patchSearchPaths cusparseNames nvjitlinkPaths
+            // patchSearchPaths cusolverNames (
+              cublasPaths ++ cusparsePaths ++ nvjitlinkPaths
+            )
+            // patchSearchPaths cudnnNames cublasPaths;
 
           pythonSet =
             (pkgs.callPackage pyproject-nix.build.packages {
