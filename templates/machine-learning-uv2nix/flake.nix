@@ -77,9 +77,14 @@
             ucx
           ];
 
+          cudaToolkit = pkgs.cudaPackages.cudatoolkit;
+
           nixglhost = nix-gl-host.defaultPackage.${system};
           linuxLibraryPath = lib.makeLibraryPath (
             fabricInputs
+            ++ [
+              cudaToolkit
+            ]
             ++ [
               pkgs.stdenv.cc.cc.lib
               pkgs.zlib
@@ -223,12 +228,19 @@
             virtualenv
             pkgs.uv
           ]
-          ++ lib.optional isLinux nixglhost;
+          ++ lib.optionals isLinux [
+            cudaToolkit
+            nixglhost
+          ];
 
           env = {
             UV_NO_SYNC = "1";
             UV_PYTHON = pythonSet.python.interpreter;
             UV_PYTHON_DOWNLOADS = "never";
+          }
+          // lib.optionalAttrs isLinux {
+            CUDA_HOME = cudaToolkit;
+            CUDA_PATH = cudaToolkit;
           }
           // lib.optionalAttrs isDarwin {
             PYTORCH_ENABLE_MPS_FALLBACK = "1";
