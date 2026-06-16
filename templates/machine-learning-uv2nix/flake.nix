@@ -22,6 +22,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    uv2nix_hammer_overrides = {
+      url = "github:TyberiusPrime/uv2nix_hammer_overrides";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-gl-host.url = "github:moeleak/nix-gl-host";
   };
 
@@ -31,6 +37,7 @@
       pyproject-nix,
       uv2nix,
       pyproject-build-systems,
+      uv2nix_hammer_overrides,
       nix-gl-host,
       ...
     }:
@@ -68,6 +75,13 @@
           python = pkgs.python312;
           isLinux = pkgs.stdenv.isLinux;
           isDarwin = pkgs.stdenv.isDarwin;
+          hammerOverrides =
+            final: previous:
+            builtins.removeAttrs ((uv2nix_hammer_overrides.overrides pkgs) final previous) [
+              # The hammer torch override currently targets older releases and breaks
+              # the CUDA/MPS handling this template already patches below.
+              "torch"
+            ];
 
           fabricInputs = with pkgs; [
             libfabric
@@ -214,6 +228,9 @@
               (
                 lib.composeManyExtensions (
                   baseOverlays
+                  ++ [
+                    hammerOverrides
+                  ]
                   ++ lib.optional isLinux cudaOverlay
                   ++ [
                     editableOverlay
