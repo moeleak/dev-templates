@@ -73,8 +73,8 @@
           };
 
           python = pkgs.python312;
-          isLinux = pkgs.stdenv.isLinux;
-          isDarwin = pkgs.stdenv.isDarwin;
+          isLinux = pkgs.stdenv.hostPlatform.isLinux;
+          isDarwin = pkgs.stdenv.hostPlatform.isDarwin;
           hammerOverrides =
             final: previous:
             builtins.removeAttrs ((uv2nix_hammer_overrides.overrides pkgs) final previous) [

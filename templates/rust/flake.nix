@@ -33,7 +33,7 @@
             rust-analyzer
             cargo
           ]
-          ++ (lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ]);
+          ++ (lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.libiconv ]);
 
       in
       {
@@ -49,7 +49,7 @@
             cargoLock = {
               lockFile = ./Cargo.lock;
             };
-            buildInputs = lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
+            buildInputs = lib.optionals pkgs.stdenv.hostPlatform.isDarwin [ pkgs.libiconv ];
           };
 
         };
